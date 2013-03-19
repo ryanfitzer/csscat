@@ -1,0 +1,22 @@
+{
+  "name": "csscat",
+  "version": "0.1-alpha",
+  "description": "A CSS Dependency Manager.",
+  "author": {
+    "name": "Ryan Fitzer",
+    "email": "ryan@ryanfitzer.com",
+    "url": "http://ryanfitzer.org"
+  },
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/ryanfitzer/csscat.git"
+  },
+  "main": "main.js",
+  "engines": {
+      "node": ">=0.8.0"
+  },
+  "dependencies": {
+    "glob": "~3.1.21"
+  },
+  "readme": "# CSSCat #\n\nCSSCat is a nodejs tool to manage CSS dependencies. Its goal is to facilitate CSS modularity through the liberal use of `@import` statements during development that can then be built into single files for production.\n\n**NOTE: PLEASE USE WITH CAUTION. CSSCAT IS CURRENTLY AN ALPHA RELEASE AND IS NOT CONSIDERED STABLE. DUE TO ITS FILE TRANSFORMATION FUNCTIONALITY, IT SHOULD ONLY BE USED IN A MANNER THAT DOES NOT JEOPARDIZE VALUABLE WORK. MORE TESTING AND REAL-WORLD USE IS NEEDED TO ENSURE A SOLID TOOL THAT FUNCTIONS AS ADVERTISED**.\n\n\n## Features ##\n\n- Concatenates file dependencies by parsing their `@import` statements (minification coming soon)\n- Parses `@import` statements that include media conditions, wrapping the imported CSS in an equivalent `@media` block. Example:\n    \n    **Before**\n        \n        @import url( 'a.css' ) screen and ( min-width: 100px );\n\n        \n    **After**\n\n        @media screen and ( min-width: 100px ) {\n            #some-id {\n                display:awesome;\n            }       \n        }\n\n## Installation ##\n\n    $ npm install csscat\n\n\n## Usage ##\n\n    var csscat = require( 'csscat' );\n    var options = {\n        \n        // Enable to see the `files` object. It is also returned from `csscat.init`\n        debug: false,\n        \n        // The relative to the file from which `csscat.init` is invoked.\n        dir: 'path/to/css/directory'\n    }\n    \n    csscat.init( {\n        dir: '../css' // relative to the file from which `csscat.init` is invoked.\n    });\n    \n    \nSince CSSCat does not copy the files into a new directory before processing, you can use the following snippet in a build.js file to create a copy of the original directory you intend to build:\n\n    var csscat = require( 'csscat' )\n        , fsh = require( 'csscat/lib/fs-helper' )\n        ;\n    \n    // Path to the directory to copy\n    var original = 'css';\n    \n    var options = {\n        dir: 'css-build'\n    }\n\n    // Delete destination directory\n    if ( fsh.exists( options.dir ) ) fsh.rm( options.dir );\n\n    // Copy the original directory to the destination directory\n    fsh.copyDir( original, options.dir );\n    \n    csscat.init( options );\n\n\n## Roadmap ##\n\n- Unit tests\n- Optimization/Minification options\n- Compatibility with popular build tools (Grunt, etc.)\n- Source maps- Source maps"
+}
