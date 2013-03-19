@@ -72,5 +72,5 @@ Since CSSCat does not copy the files into a new directory before processing, you
 - Unit tests
 - Optimization/Minification options
 - Compatibility with popular build tools (Grunt, etc.)
-- Source maps- Source maps
+- Source maps
 
