@@ -2,7 +2,7 @@
 
 CSSCat is a [Node.js][nodejs] tool for managing CSS dependencies. Its goal is to facilitate CSS modularity through the liberal use of `@import` statements ([including ones with media conditions][mqs]) during development that can then be built into single files for production.
 
-"***Why not just use one of the various CSS preprocessors available these days***", you ask? Good question. I wrote CSSCat for those who don't use a preprocessor and/or for when a project's limitations exclude a preprocessor as an option.
+"**Why not just use one of the various CSS preprocessors available these days**", you ask? Good question. I wrote CSSCat for those who don't use a preprocessor and/or for when a project's limitations exclude a preprocessor as an option.
 
 **CSSCat IS IN THE ALPHA STAGES**. So please use with caution. Due to its file transformation functionality, it should only be used in a manner that does not jeopardize your valuable work. More testing and real-world use is needed to ensure a solid tool that functions as advertised.
 
@@ -21,9 +21,9 @@ With that said, testers are needed (and much appreciated)! Please log any issues
     **After**:
 
         @media screen and ( min-width: 100px ) {
-            #some-id {
-                display:awesome;
-            }       
+        #some-id {
+            display:awesome;
+        }       
         }
 - Optimizes each file via [CSSMin][CSSMin].
 
@@ -33,7 +33,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
     $ npm install csscat
 
 
-# Usage #
+## Usage ##
 
     var csscat = require( 'csscat' );
     
@@ -55,7 +55,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 - `optimize` Minify via CSSMin.
 
 
-# Roadmap #
+## Roadmap ##
 
 - Unit tests
 - Compatibility with other tools ([RequireJS][requirejs], [Grunt][grunt])
@@ -73,7 +73,3 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 [source-maps-html5rocks]:http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/
 [moz-source-map]: https://github.com/mozilla/source-map
 [source-maps-snugug]:http://snugug.com/musings/debugging-sass-source-maps
-
-
-
-
