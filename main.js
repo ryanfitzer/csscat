@@ -14,7 +14,11 @@
     var fs = require( 'fs' )
         , path = require( 'path' )
         , glob = require( 'glob' )
-        , log = require( './lib/logger' )
+        , cssmin = require( 'ycssmin' ).cssmin
+        ;
+    
+    // Local libs
+    var log = require( './lib/logger' )
         , fsh = require( './lib/fs-helper' )
         ;
     
@@ -28,7 +32,9 @@
         
         this.options = {
             dir: null,
-            debug: false
+            debug: false,
+            exclude: /^\.|\/\./,
+            optimize: true
         }
         
         this.files = {
@@ -69,7 +75,10 @@
             
             // Get the list of css files
             log.info( 'Getting list of CSS files.' );
-            list = fsh.glob( '**/*.css', this.options.dir );
+            list = fsh.glob( '**/*.css', {
+                dir: this.options.dir,
+                exclude: this.options.exclude
+            });
 
             if ( !list ) log.error( 'Couldn\'t find any css files in given directory' );
 
@@ -162,7 +171,7 @@
                 graph[ absPath ] = [];
                 curFile = data[ absPath ] = {};
                 matches = fileContents.match( rImportGlobal );
-                log.debug( absPath );
+
                 if ( !matches ) return;
 
                 curFile.imports = {}
@@ -171,7 +180,6 @@
                     
                     curMatch = theMatch.match( rImport );
                     absPathImport = path.resolve( path.dirname( absPath ), curMatch[1].replace( rQuotes, '' ) );
-                    log.debug( absPathImport );
                     graph[ absPath ].push( absPathImport );
                     curImport = curFile.imports[ absPathImport ] = {
                         statement: curMatch[0],
@@ -209,7 +217,7 @@
 
                 ancestors.push( name );
                 visited[ name ] = true;
-
+                log.debug( name, 'Name' );
                 graph[ name ].forEach( function( dep ) {
 
                     // If already in ancestors, a closed chain exists.
@@ -255,7 +263,7 @@
                 // Create the `@media` block
                 mediaBlock = [
                     '@media ', importFile.condition, ' {\n',
-                        '    ', importFile.rule, '\n',
+                        importFile.rule, '\n',
                     '}'
                 ].join('');
                 
@@ -286,17 +294,6 @@
             
 			content = fsh.readFile( thePath );
 			
-			/*
-			
-			"/Applications/MAMP/htdocs/lab/Javascript/Node/csscat/app-build/css/a/a.1.css": {
-				"statement": "@import url( 'a/a.1.css' ) screen and ( min-width: 100px );",
-				"path": "a/a.1.css",
-				"rule": "@import 'a/a.1.css';",
-				"condition": "screen and ( min-width: 100px )"
-			},
-			
-			*/
-			
 			for ( var importPath in fileData.imports ) {
 				
 				pattern = fileData.imports[ importPath ].rule;
@@ -305,6 +302,8 @@
                 // Update the content
                 content = content.replace( pattern, importContent );
 			}
+			
+			if ( this.options.optimize ) content = cssmin( content );
 			
             // Write the new content to the file
             fsh.writeFile( thePath, content );
