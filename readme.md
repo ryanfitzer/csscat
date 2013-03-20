@@ -25,6 +25,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
             display:awesome;
         }       
         }
+
 - Optimizes each file via [CSSMin][CSSMin].
 
 
@@ -52,7 +53,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 
 - `exclude` {RegEx} Regex exclusion pattern used to filter the results. Defaults to `/^\.|\/\./`, which filters out all directories/files that start with a `.`.
 
-- `optimize` Minify via CSSMin.
+- `optimize` {Boolean} Minify via CSSMin.
 
 
 ## Roadmap ##
