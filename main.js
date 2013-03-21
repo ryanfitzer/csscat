@@ -1,26 +1,27 @@
-/*
-    # Options
-    
-    {
-        // Verbose logging
-        debug: false,
-        
-        // Destination directory
-        dir: 'some/path'
-    }
-*/
 !function() {
     
+    // Node deps
     var fs = require( 'fs' )
         , path = require( 'path' )
-        , glob = require( 'glob' )
+        ;
+    
+    // NPM deps
+    var glob = require( 'glob' )
         , cssmin = require( 'ycssmin' ).cssmin
         ;
     
-    // Local libs
+    // Local deps
     var log = require( './lib/logger' )
         , fsh = require( './lib/fs-helper' )
         ;
+        
+    function error( msg, heading ) {
+        
+        if ( !heading ) msg = '[Error] ' + msg;
+        
+        log.error( msg, heading );
+        process.exit(1);
+    }
     
     /**
      * CSSCat
@@ -31,10 +32,21 @@
     function CSSCat( config ) {
         
         this.options = {
-            dir: null,
+            dir: '',
+            files: [],
             debug: false,
-            exclude: /^\.|\/\./,
+            exclude: /^\.|\/\.|node_modules/,
             optimize: true
+            /* Potential Hooks
+            concatenate: function( content ) {
+                // alter content
+                return content
+            },
+            optimize: function ( content ) {
+                // optimize content
+                return content
+            }
+            */
         }
         
         this.files = {
@@ -68,19 +80,22 @@
                if ( key in config ) this.options[ key ] = config[ key ];
             }
 
-            if ( !this.options.dir ) log.error( 'No target directory defined.');
-            
+            if ( !this.options.dir ) error( 'No directory defined.' );
+
             this.options.dir = path.resolve( this.options.dir );
-            if ( !fsh.exists( this.options.dir ) ) log.error( 'Target directory could not be found at ' + this.options.dir );
+            if ( !fsh.exists( this.options.dir ) ) error( 'Target directory could not be found: ' + this.options.dir );
             
             // Get the list of css files
-            log.info( 'Getting list of CSS files.' );
-            list = fsh.glob( '**/*.css', {
-                dir: this.options.dir,
-                exclude: this.options.exclude
-            });
-
-            if ( !list ) log.error( 'Couldn\'t find any css files in given directory' );
+            list = this.options.files;
+            if ( !list.length ) {
+               
+                log.info( 'Getting list of CSS files.' );
+                list = fsh.glob( '**/*.css', {
+                    dir: this.options.dir,
+                    exclude: this.options.exclude
+                });
+            }
+            if ( !list ) error( 'Couldn\'t find any css files in given directory' );
 
             // Build the various data structures
             log.info( 'Creating the files object.' );
@@ -106,14 +121,13 @@
             
             var files = this.files.order;
             
-            log.info( 'Wraping `@media` blocks around each dependency:' );
+            log.info( 'Handling dependencies with media conditions:' );
             files.forEach( this.buildMediaBlock, this );
             
-            log.info( 'Concatinating dependencies:' );
+            log.info( 'Concatinating and/or optimizing:' );
             files.forEach( this.concatenate, this );
 
-            log.success( ' Successfully finished! ' );
-
+            log.success( '\n Finished! \n' );
         },
         
         /**
@@ -168,14 +182,17 @@
                 
                 absPath = path.join( this.options.dir, file );
                 fileContents = fsh.readFile( absPath );
+                
+                if ( !fileContents ) error( 'File does not exist: "' + absPath + '"' );
+                
                 graph[ absPath ] = [];
                 curFile = data[ absPath ] = {};
                 matches = fileContents.match( rImportGlobal );
-
+                
                 if ( !matches ) return;
-
+                
                 curFile.imports = {}
-
+                
                 matches.forEach( function( theMatch ) {
                     
                     curMatch = theMatch.match( rImport );
@@ -217,12 +234,12 @@
 
                 ancestors.push( name );
                 visited[ name ] = true;
-                log.debug( name, 'Name' );
+
                 graph[ name ].forEach( function( dep ) {
 
                     // If already in ancestors, a closed chain exists.
                     if ( ancestors.indexOf( dep ) >= 0 ) {
-                        log.error( 'Circular dependency found: "' +  dep + '" is required by "' + name + '"( ' + ancestors.join( ' -> ' ) + ' )' );
+                        error( 'Circular dependency found: "' +  dep + '" is required by "' + name + '"( ' + ancestors.join( ' -> ' ) + ' )' );
                     }
 
                     visit( dep, ancestors.slice( 0 ) );
@@ -286,21 +303,26 @@
             var content
 				, pattern
 				, importContent
+				, opts = this.options
                 , fileData = this.files.data[ thePath ]
                 ;
                         
-            // Make sure there are `@import` statements
-            if ( !fileData.imports ) return log.minor( '  [skip] ' + thePath );
+            // Skip if no `@import` statements and no optimization needed
+            if ( !opts.optimize && !fileData.imports ) return log.minor( '  [skip] ' + thePath );
             
 			content = fsh.readFile( thePath );
 			
-			for ( var importPath in fileData.imports ) {
-				
-				pattern = fileData.imports[ importPath ].rule;
-				importContent = fsh.readFile( importPath );
-				
-                // Update the content
-                content = content.replace( pattern, importContent );
+			// Make sure there are `@import` statements
+			if ( !fileData.imports ) {
+			    
+			    for ( var importPath in fileData.imports ) {
+
+    				pattern = fileData.imports[ importPath ].rule;
+    				importContent = fsh.readFile( importPath );
+
+                    // Update the content
+                    content = content.replace( pattern, importContent );
+    			}
 			}
 			
 			if ( this.options.optimize ) content = cssmin( content );

@@ -17,7 +17,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
         
         @import url( 'a.css' ) screen and ( min-width: 100px );
 
-        
+
     **After**:
 
         @media screen and ( min-width: 100px ) {
@@ -43,17 +43,19 @@ With that said, testers are needed (and much appreciated)! Please log any issues
     });
     
 
-**Note**: CSSCat does not copy the files into a new directory before processing. This [gist][copy-files] shows how to use use CSSCat's fs-helper in a build.js file to easily generate a copy of the original directory.
+**Note**: CSSCat does not copy the files into a new directory before processing. This [gist][copy-files] shows how to use CSSCat's fs-helper in a build.js file to easily generate a copy of the original directory.
 
 ## Options ##
 
-- `debug` {Boolean} Enable verbose logging. Defaults to `false`.
+- `dir` {String} The base path (relative to the file from which `csscat.init` is invoked) used to search for all files with a "css" extension.
 
-- `dir` {String} The path (relative to the file from which `csscat.init` is invoked) used to search for all files with a "css" extension.
-
-- `exclude` {RegEx} Regex exclusion pattern used to filter the results. Defaults to `/^\.|\/\./`, which filters out all directories/files that start with a `.`.
+- `files` {Array} (Optional) An array of files to use instead of searching the `dir` path. The paths must be relative to the `dir` path.
 
 - `optimize` {Boolean} Minify via CSSMin.
+
+- `exclude` {RegEx} Regex exclusion pattern used to filter the results. Defaults to `/^\.|\/\.|node_modules/`, which filters out anything that begins with "." or "node_modules".
+
+- `debug` {Boolean} Enable verbose logging. Defaults to `false`.
 
 
 ## Roadmap ##
