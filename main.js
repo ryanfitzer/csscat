@@ -1,9 +1,7 @@
 !function() {
     
     // Node deps
-    var fs = require( 'fs' )
-        , path = require( 'path' )
-        ;
+    var path = require( 'path' );
     
     // NPM deps
     var glob = require( 'glob' )
@@ -294,7 +292,17 @@
         },
         
         /**
-         * Find and rplace all `@import` statements with content.
+         * Resolve asset paths to the parent that imports them.
+         * 
+         * @method resolvePaths
+         */
+        resolvePaths: function() {
+            
+            
+        },
+        
+        /**
+         * Find and replace all `@import` statements with content.
          * 
          * @method concatenate
          */
@@ -313,20 +321,20 @@
 			content = fsh.readFile( thePath );
 			
 			// Make sure there are `@import` statements
-			if ( !fileData.imports ) {
+			if ( fileData.imports ) {
 			    
 			    for ( var importPath in fileData.imports ) {
 
     				pattern = fileData.imports[ importPath ].rule;
     				importContent = fsh.readFile( importPath );
-
+                    
                     // Update the content
                     content = content.replace( pattern, importContent );
     			}
 			}
 			
 			if ( this.options.optimize ) content = cssmin( content );
-			
+            
             // Write the new content to the file
             fsh.writeFile( thePath, content );
             log.major( '  [meow] ' + thePath );    
