@@ -12,7 +12,20 @@
     var log = require( './lib/logger' )
         , fsh = require( './lib/fs-helper' )
         ;
+
+    // Matches (global) single and double quotes
+    var rQuotes = /['"]/g;
         
+    // Captures the css asset path (no absolutes, bounding quotes, or spaces)
+    var rAssetURLs = /url\(\s*(?:['"])?(?!data|http:|https:|ftp:|\/\/|\/)([^'"\)\s]+)/g
+        
+    // Captures the `@import` path and media condition
+    var rImport = /\@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/
+        
+    // Global version of `rImport`
+    var rImportGlobal = /\@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/g;
+    
+    // Logs error and exits
     function error( msg, heading ) {
         
         if ( !heading ) msg = '[Error] ' + msg;
@@ -125,7 +138,7 @@
             log.info( 'Concatinating and/or optimizing:' );
             files.forEach( this.concatenate, this );
 
-            log.success( '\n Finished! \n' );
+            log.success( 'Finished!' );
         },
         
         /**
@@ -171,9 +184,6 @@
                 , absPathImport
                 , data = {}
                 , graph = {}
-                , rQuotes = /['"]/g
-                , rImport = /\@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/
-                , rImportGlobal = /\@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/g
                 ;
             
             list.forEach( function( file ) {
@@ -261,6 +271,7 @@
             var content
 				, mediaBlock
                 , importFile
+                , mediaImports = []
                 , fileData = this.files.data[ thePath ]
                 ;
             
@@ -269,11 +280,19 @@
             
 			content = fsh.readFile( thePath );
 			
-            for ( var file in fileData.imports ) {
+			for ( var file in fileData.imports ) {
 
                 importFile = fileData.imports[ file ];
                 
-                if ( !importFile.condition ) continue;
+                if ( importFile.condition )  mediaImports.push( file );
+            }
+			
+			// Make sure the `@import` statements have media conditions
+			if ( !mediaImports.length ) return log.minor( '  [skip] ' + thePath );
+			
+			mediaImports.forEach( function( file ) {
+			    
+			    importFile = fileData.imports[ file ];
                 
                 // Create the `@media` block
                 mediaBlock = [
@@ -284,23 +303,13 @@
                 
                 // Update the content
                 content = content.replace( importFile.statement, mediaBlock );
-            }
+			}, this );
             
             // Write the new content to the file
             fsh.writeFile( thePath, content );
             log.major( '  [meow] ' + thePath );
         },
-        
-        /**
-         * Resolve asset paths to the parent that imports them.
-         * 
-         * @method resolvePaths
-         */
-        resolvePaths: function() {
-            
-            
-        },
-        
+                
         /**
          * Find and replace all `@import` statements with content.
          * 
@@ -325,8 +334,12 @@
 			    
 			    for ( var importPath in fileData.imports ) {
 
-    				pattern = fileData.imports[ importPath ].rule;
+                    // pattern = fileData.imports[ importPath ].rule;
+                    pattern = rImport;
     				importContent = fsh.readFile( importPath );
+    				
+    				// Fix asset paths
+                    importContent = this.resolvePaths( thePath, importPath, importContent );
                     
                     // Update the content
                     content = content.replace( pattern, importContent );
@@ -338,6 +351,33 @@
             // Write the new content to the file
             fsh.writeFile( thePath, content );
             log.major( '  [meow] ' + thePath );    
+        },
+        
+        /**
+         * Resolve asset paths to the parent that imports them.
+         * 
+         * @method resolvePaths
+         * 
+         * @param parentPath {String} Path to file that contains the `@import` statement.
+         * @param childPath {String} Path to file being imported.
+         * @param content {String} Content of file being imported.
+         */
+        resolvePaths: function( parentPath, childPath, content ) {
+            
+            var absAssetPath
+                , relAssetPath
+                , self = this
+                ;
+            
+            content = content.replace( rAssetURLs, function ( match, assetPath ) {
+                
+                absAssetPath = path.resolve( childPath, assetPath );
+                relAssetPath = path.relative( parentPath, absAssetPath );
+                
+                return match.replace( assetPath, relAssetPath );
+            });
+            
+            return content;
         }
     }
     

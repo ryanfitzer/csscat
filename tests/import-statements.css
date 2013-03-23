@@ -1,0 +1,16 @@
+@import 'path/to/file.css';
+@import "path/to/file.css";
+
+@import url('path/to/file.css') screen and (min-width: 100px);
+@import url("path/to/file.css") screen and (min-width: 100px);
+
+@import url( 'path/to/file.css' ) screen and ( min-width: 100px );
+@import url( "path/to/file.css" ) screen and ( min-width: 100px );
+
+@import url( 'path/to/file.css' ) screen and ( min-width: 200px ), print and ( color );
+
+@import url( 'some/file.css?ryan=d$de' ) screen and ( expression: 'value' ), screen and ( expression );
+
+#arbitrary {
+    display:none;
+}

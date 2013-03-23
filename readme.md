@@ -11,7 +11,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 
 ## Features ##
 
-- Concatenates file dependencies by parsing their `@import` statements ([including ones with media conditions][mqs]). CSSCat correctly wraps the imported CSS in its equivalent `@media` block (also preserves its position in the cascade). For example:
+- Concatenates file dependencies by parsing their `@import` statements ([including ones with media conditions][mqs]). CSSCat correctly wraps the imported CSS in its equivalent `@media` block. For example:
 
     **Before**:
         
@@ -26,6 +26,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
         }       
         }
 
+- Rewrites relative asset paths to reference new context.
 - Optimizes each file via [CSSMin][CSSMin].
 
 
