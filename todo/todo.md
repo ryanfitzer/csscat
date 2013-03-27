@@ -1,2 +1,0 @@
-- Cross-platform module for opening a browser window https://github.com/fixedset/open.js.
-- Individual regex tests.

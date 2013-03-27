@@ -66,12 +66,12 @@ While I develop more robust tests, I've created a simple smoke-test to be viewed
 - A red "x" image (or no image at all) in place of the green checkmark. This means the relative asset paths were not correctly rewritten to reference their new context.
 - The filename text will be red, meaning the file was not properly imported.
 
-Viewing the results in the browser allows for easy debugging until I can get proper unit tests developed. If you find an instance where a particular scenario in your css fails, let me know and I'll update the smoke-test. 
+Viewing the results in the browser allows for easy debugging until I can get proper unit tests developed. If you find a particular scenario in your css that fails, let me know and I'll update the smoke-test. 
 
 To run the tests:
 
     $ cd path/to/where/you/installed/csscat
-    $ npm test
+    $ node smoke-test/test.sample
     
 If you're browser does not automatically open index.html (currently OSX only), use the following url:
 

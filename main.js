@@ -18,12 +18,12 @@
         
     // Captures the css asset path (no absolutes, bounding quotes, or spaces)
     var rAssetURLs = /url\(\s*(?:['"])?(?!data|http:|https:|ftp:|\/\/|\/)([^'"\)\s]+)/g
-        
+
     // Captures the `@import` path and media condition
     var rImport = /\@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/
         
     // Global version of `rImport`
-    var rImportGlobal = /\@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/g;
+    var rImportGlobal = new RegExp( rImport.toString().slice( 1, rImport.toString().length - 1 ), [ 'g' ] );
     
     // Logs error and exits
     function error( msg, heading ) {
@@ -381,6 +381,14 @@
         }
     }
     
-    module.exports = new CSSCat;
+    var api = new CSSCat; 
+    
+    module.exports = {
+        init: api.init.bind( api ),
+        test: {
+            rAssetURLs: rAssetURLs,
+            rImportGlobal: rImportGlobal
+        }
+    }
 
 }();

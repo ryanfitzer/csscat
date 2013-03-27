@@ -7,7 +7,7 @@ div {
     background:url('ftp://domain.com/absolute/path/asset.jpg');
     background:url('data:image/png;base64,iVBORw0KGgoAAAAN');
     background:url('/absolute/path/asset.jpg');
-    
+
     background:url(//domain.com/absolute/path/asset.jpg);
     background:url(http://domain.com/absolute/path/asset.jpg);
     background:url(https://domain.com/absolute/path/asset.jpg);
