@@ -75,7 +75,7 @@ To run the tests:
     
 If your browser does not automatically open index.html (currently OSX only), use the following url:
 
-    file://path/to/where/you/installed/csscat/tests/sample-build/index.html
+    file://path/to/where/you/installed/csscat/smoke-test/sample-build/index.html
 
 
 ## Roadmap ##
