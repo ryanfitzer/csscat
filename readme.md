@@ -73,7 +73,7 @@ To run the tests:
     $ cd path/to/where/you/installed/csscat
     $ node smoke-test/test.sample
     
-If you're browser does not automatically open index.html (currently OSX only), use the following url:
+If your browser does not automatically open index.html (currently OSX only), use the following url:
 
     file://path/to/where/you/installed/csscat/tests/sample-build/index.html
 
