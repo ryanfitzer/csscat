@@ -16,7 +16,7 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "glob": "~3.1.21",
+    "glob": "~3.1.x",
     "ycssmin": "~1.0.1"
   },
   "scripts": {
