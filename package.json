@@ -20,7 +20,7 @@
     "ycssmin": "~1.0.1"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter list --require should ./tests"
+    "test": "node_modules/.bin/mocha --reporter list --require should tests"
   },
   "devDependencies": {
     "mocha": "~1.8.2",
