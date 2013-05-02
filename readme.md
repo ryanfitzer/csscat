@@ -82,7 +82,6 @@ A new directory will be created in the smoke-test directory named "sample-build"
 ## Roadmap ##
 
 - Proper unit testing.
-- Cross-platform testing (I've only tested OSX, so far).
 - Compatibility with other tools ([RequireJS][requirejs], [Grunt][grunt]).
 - Converting images to `data-uri` via some sort of flag in the property.
 - [Source map][source-maps-html5rocks] generation ([more explanation][source-maps-snugug]). Mozilla [has a nodejs package][moz-source-map].
