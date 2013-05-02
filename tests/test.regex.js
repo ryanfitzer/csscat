@@ -4,7 +4,7 @@ var fs = require( 'fs' )
     , path = require( 'path' )
     , util = require( 'util' )
     , assert = require( 'assert' )
-    , csscat = require( 'csscat' )
+    , csscat = require( '../main' )
     ;
 
 var RegEx = {

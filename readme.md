@@ -61,21 +61,22 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 
 ## Testing ##
 
-While I develop more robust tests, I've created a simple smoke-test to be viewed in the browser. If successful, the page will show 3 green checkmarks next to green text of the individual filenames. If unsuccessful, the possible states are:
+While I develop more robust tests, I've created a simple smoke-test to be viewed in the browser. Viewing the results in the browser allows for easy debugging until I can get proper unit tests developed. If you find a particular scenario in your css that fails, let me know and I'll update the smoke-test. 
 
-- A red "x" image (or no image at all) in place of the green checkmark. This means the relative asset paths were not correctly rewritten to reference their new context.
-- The filename text will be red, meaning the file was not properly imported.
-
-Viewing the results in the browser allows for easy debugging until I can get proper unit tests developed. If you find a particular scenario in your css that fails, let me know and I'll update the smoke-test. 
-
-To run the tests:
+### Running the Smoke Test
 
     $ cd path/to/where/you/installed/csscat
     $ node smoke-test/test.sample
-    
-If your browser does not automatically open index.html (currently OSX only), use the following url:
 
-    file://path/to/where/you/installed/csscat/smoke-test/sample-build/index.html
+### Viewing the Results
+
+A new directory will be created in the smoke-test directory named "sample-build". Open the enclosed "index.html" in a browser.
+
+### Reading the Results
+
+**PASS**: All text is green. A green checkmark image to the left of text.
+
+**FAIL**: Red text and/or red "x" image and/or no "x" image to the left of text.
 
 
 ## Roadmap ##

@@ -1,9 +1,9 @@
 !function() {
 
     var path = require( 'path' )
-        , csscat = require( 'csscat' )
         , childp = require( 'child_process' )
-        , fsh = require( 'csscat/lib/fs-helper' )
+        , csscat = require( '../main' )
+        , fsh = require( '../lib/fs-helper' )
         ;
     
     // The directory to copy (relative to this file)

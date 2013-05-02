@@ -13,7 +13,7 @@
         , fsh = require( './lib/fs-helper' )
         ;
 
-    // Matches (global) single and double quotes
+    // Matches single and double quotes
     var rQuotes = /['"]/g;
         
     // Captures the css asset path (no absolutes, bounding quotes, or spaces)
@@ -374,7 +374,7 @@
                 absAssetPath = path.resolve( childPath, assetPath );
                 relAssetPath = path.relative( parentPath, absAssetPath );
                 
-                return match.replace( assetPath, relAssetPath );
+                return match.replace( assetPath, relAssetPath ).replace( /\\/g, '/' );
             });
             
             return content;
