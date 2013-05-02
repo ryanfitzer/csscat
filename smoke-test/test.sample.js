@@ -33,6 +33,4 @@
         dir: dir
     });
     
-    childp.spawn( 'open', [ '/' + dir + '/index.html' ] );
-    
 }();
