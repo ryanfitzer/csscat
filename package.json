@@ -1,6 +1,6 @@
 {
   "name": "csscat",
-  "version": "0.6.0-alpha",
+  "version": "0.6.0",
   "description": "A CSS Dependency Manager.",
   "author": {
     "name": "Ryan Fitzer",
