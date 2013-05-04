@@ -14,7 +14,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 - Concatenates file dependencies by parsing their `@import` statements ([including ones with media conditions][mqs]). CSSCat correctly wraps the imported CSS in its equivalent `@media` block. For example:
 
     **Before**:
-        
+
         @import url( 'a.css' ) screen and ( min-width: 100px );
 
 
@@ -27,7 +27,7 @@ With that said, testers are needed (and much appreciated)! Please log any issues
         }
 
 - Rewrites relative asset paths to reference new context.
-- Optimizes each file via [CSSMin][CSSMin].
+- Optimizes each file via [CSSMin][CSSMin] (optional).
 
 
 ## Installation ##
@@ -50,13 +50,15 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 
 - `dir` {String} The base path (relative to the file from which `csscat.init` is invoked) used to search for all files with a "css" extension.
 
-- `files` {Array} (Optional) An array of files to use instead of searching the `dir` path. The paths must be relative to the `dir` path.
+- `files` {Array} (Optional) An array of files to use instead of searching the `dir` path. If the `dir` path is defined, the paths must be relative to the `dir` path.
 
 - `optimize` {Boolean} Minify via CSSMin.
 
-- `exclude` {RegEx} Regex exclusion pattern used to filter the results. Defaults to `/^\.|\/\.|node_modules/`, which filters out anything that begins with "." or "node_modules".
+- `exclude` {RegEx} Regex exclusion pattern used to filter the list of files. Defaults to `/^\.|\/\.|node_modules/`, which filters out anything that begins with "." or "node_modules". **NOTE**: If an excluded file is a dependency of a non-excluded file, the file will be parsed. This may change in the future.
 
-- `debug` {Boolean} Enable verbose logging. Defaults to `false`.
+- `log` {Boolean} Enable logging. Defaults to `false`.
+
+- `debug` {Boolean} Enable debug logging. Defaults to `false`.
 
 
 ## Testing ##
@@ -81,8 +83,8 @@ A new directory will be created in the smoke-test directory named "sample-build"
 
 ## Roadmap ##
 
-- Proper unit testing.
-- Compatibility with other tools ([RequireJS][requirejs], [Grunt][grunt]).
+- More robust automated testing.
+- Compatibility with other tools ([RequireJS][requirejs], [Grunt][grunt]) (in progress).
 - Converting images to `data-uri` via some sort of flag in the property.
 - [Source map][source-maps-html5rocks] generation ([more explanation][source-maps-snugug]). Mozilla [has a nodejs package][moz-source-map].
 

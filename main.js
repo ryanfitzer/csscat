@@ -1,3 +1,4 @@
+/*jshint laxcomma:true */
 !function() {
     
     // Node deps
@@ -17,10 +18,10 @@
     var rQuotes = /['"]/g;
         
     // Captures the css asset path (no absolutes, bounding quotes, or spaces)
-    var rAssetURLs = /url\(\s*(?:['"])?(?!data|http:|https:|ftp:|\/\/|\/)([^'"\)\s]+)/g
+    var rAssetURLs = /url\(\s*(?:['"])?(?!data|http:|https:|ftp:|\/\/|\/)([^'"\)\s]+)/g;
 
     // Captures the `@import` path and media condition
-    var rImport = /\@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/
+    var rImport = /(?!.*\*\/)@import\s*(?:url\()?\s*["']([^'"]*)['"]\s*\)?\s*(.*?);/;
         
     // Global version of `rImport`
     var rImportGlobal = new RegExp( rImport.toString().slice( 1, rImport.toString().length - 1 ), [ 'g' ] );
@@ -45,9 +46,10 @@
         this.options = {
             dir: '',
             files: [],
-            debug: false,
             exclude: /^\.|\/\.|node_modules/,
-            optimize: true
+            optimize: true,
+            log: true,
+            debug: false
             /* Potential Hooks
             concatenate: function( content ) {
                 // alter content
@@ -80,21 +82,46 @@
          */
         init: function( config ) {
             
-            var list;
-
-            // Set up logger options
-            log.config( config );
-            
-            // Update options
-            log.info( 'Extending CSSCat options.' );
-            for ( key in this.options ) {
+            // Extend options
+            for ( var key in this.options ) {
                if ( key in config ) this.options[ key ] = config[ key ];
             }
-
-            if ( !this.options.dir ) error( 'No directory defined.' );
-
-            this.options.dir = path.resolve( this.options.dir );
-            if ( !fsh.exists( this.options.dir ) ) error( 'Target directory could not be found: ' + this.options.dir );
+            
+            // Set up logger options
+            log.config( {
+                debug: this.options.debug,
+                level: this.options.log
+            });
+            
+            if ( !this.options.dir && !this.options.files ) error( 'No directory defined.' );
+            
+            if ( this.options.dir ) {
+                
+                this.options.dir = path.resolve( this.options.dir );
+                if ( !fsh.exists( this.options.dir ) ) error( 'Target directory could not be found: ' + this.options.dir );
+            }
+            
+            log.info( 'CSSCat options extended.' );
+            
+            log.debug( this.options, 'Options' );
+            
+            this.createFileData();
+            
+            this.process();
+            
+            return {
+                files: this.files
+            }
+        },
+        
+        /**
+         * Description needed
+         * 
+         * @method createFileData
+         */
+        createFileData: function() {
+            
+            var list;
             
             // Get the list of css files
             list = this.options.files;
@@ -106,36 +133,36 @@
                     exclude: this.options.exclude
                 });
             }
-            if ( !list ) error( 'Couldn\'t find any css files in given directory' );
-
-            // Build the various data structures
-            log.info( 'Creating the files object.' );
-            this.files = this.buildFileObject( list );
-            this.files.order = this.sortByDependency( this.files.graph );
-
-            // Debug logging
+            if ( !list ) error( 'Could not find any css files in given directory.' );
+            
             log.debug( list, 'File Listing' );
-            log.debug( this.options, 'Options' );
+            
+            // Build the various data structures
+            log.info( 'Creating the file data/graph objects:' );
+            this.files = this.buildFileObject( list );
+            
             log.debug( this.files.data, 'File Data' );
             log.debug( this.files.graph, 'Dependency Graph' );
-            log.debug( this.files.order, 'Optimize Order' );
             
-            this.process();
+            log.info( 'Adding files to the processing list (ordered by dependency):' );
+            this.files.order = this.sortByDependency( this.files.graph );
         },
         
         /**
          * Description needed
          * 
-         * @method name
+         * @method process
          */
         process: function() {
             
-            var files = this.files.order;
+            var files = this.files.order
+                , withOptimization = this.options.optimize ? 'with' : 'without'
+                ;
             
-            log.info( 'Handling dependencies with media conditions:' );
+            log.info( 'Handling imports with media conditions:' );
             files.forEach( this.buildMediaBlock, this );
             
-            log.info( 'Concatinating and/or optimizing:' );
+            log.info( 'Concatenating files (' + withOptimization + ' optimization):' );
             files.forEach( this.concatenate, this );
 
             log.success( 'Finished!' );
@@ -179,41 +206,61 @@
                 , matches
                 , curFile
                 , curMatch
-                , curImport
+                , colonIndex
                 , fileContents
                 , absPathImport
+                , origPathImport
+                , firstSlashIndex
                 , data = {}
                 , graph = {}
                 ;
             
             list.forEach( function( file ) {
-                
-                absPath = path.join( this.options.dir, file );
+
+                absPath = this.options.dir ? path.join( this.options.dir, file ) : file;
                 fileContents = fsh.readFile( absPath );
                 
                 if ( !fileContents ) error( 'File does not exist: "' + absPath + '"' );
                 
                 graph[ absPath ] = [];
                 curFile = data[ absPath ] = {};
+                data[ absPath ].skip = false;
                 matches = fileContents.match( rImportGlobal );
                 
-                if ( !matches ) return;
-                
-                curFile.imports = {}
-                
-                matches.forEach( function( theMatch ) {
+                if ( matches ) {
                     
-                    curMatch = theMatch.match( rImport );
-                    absPathImport = path.resolve( path.dirname( absPath ), curMatch[1].replace( rQuotes, '' ) );
-                    graph[ absPath ].push( absPathImport );
-                    curImport = curFile.imports[ absPathImport ] = {
-                        statement: curMatch[0],
-                        path: curMatch[1],
-                        rule: [ "@import '", curMatch[1], "';" ].join(''),
-                        condition: curMatch[2]
-                    }
+                    curFile.imports = {};
+                
+                    matches.forEach( function( theMatch ) {
                     
-                });
+                        curMatch = theMatch.match( rImport );
+                        origPathImport = curMatch[1].replace( rQuotes, '' );
+                        absPathImport = path.resolve( path.dirname( absPath ), origPathImport );
+                        firstSlashIndex = origPathImport.indexOf( '/' );
+                        colonIndex = origPathImport.indexOf( ':' );
+                    
+                        // Skip files that start with '/' or have a protocol.
+                        if ( origPathImport.charAt( 0 ) === '/' || ( colonIndex !== -1 && colonIndex < firstSlashIndex ) ) {
+                        
+                            curFile.skip = true;
+                            absPathImport = origPathImport;
+                        }
+                    
+                        graph[ absPath ].push( absPathImport );
+                        curFile.imports[ absPathImport ] = {
+                            statement: curMatch[0],
+                            path: curMatch[1],
+                            rule: [ "@import '", curMatch[1], "';" ].join(''),
+                            condition: curMatch[2]
+                        }
+                    
+                    });
+                }
+                
+                if ( curFile.skip ) {
+                    log.warn( '  [warning] The file "' + file + '" has dependencies that are unresolvable.' );
+                }
+                else log.minor( '  [parsed] ' + absPath );
                 
             }, this );
             
@@ -232,19 +279,56 @@
 
             var sorted = [] 
                 , visited = {}
+                , self = this
+                , count = 0
                 ;
-
+            
+            var checkSkippedDeps = function( imports ) {
+                
+                var fileObj
+                    , toSkip = false
+                    ;
+                
+                if ( !imports ) return toSkip;
+                
+                Object.keys( imports ).forEach( function( fileName ) {
+                    
+                    fileObj = self.files.data[ fileName ];
+                    
+                    if ( !fileObj ) toSkip = true;
+                    
+                    else if ( fileObj && fileObj.imports ) {
+                        toSkip = checkSkippedDeps( self.files.data[ fileName ].imports );
+                    }
+                    
+                    else if ( self.files.data[ fileName ].skip ) toSkip = true;
+                });
+                
+                return toSkip;
+            };
+            
             var visit = function( name, ancestors ) {
-
+                
+                var toSkipFile = false
+                    , imports = self.files.data[ name ].imports
+                    ;
+                
                 if ( visited[ name ] ) return;
 
                 if ( !Array.isArray( ancestors ) ) ancestors = [];
 
                 ancestors.push( name );
                 visited[ name ] = true;
+                
+                // Skip the file if it can't be processed.
+                if ( self.files.data[ name ].skip ) return;
 
+                toSkipFile = checkSkippedDeps( imports );
+                
+                if ( toSkipFile ) return;
+                
                 graph[ name ].forEach( function( dep ) {
-
+                    
                     // If already in ancestors, a closed chain exists.
                     if ( ancestors.indexOf( dep ) >= 0 ) {
                         error( 'Circular dependency found: "' +  dep + '" is required by "' + name + '"( ' + ancestors.join( ' -> ' ) + ' )' );
@@ -252,8 +336,9 @@
 
                     visit( dep, ancestors.slice( 0 ) );
                 });
-
+                
                 sorted.push( name );
+                log.minor( '  [' + ++count + '] ' + name );
             }
 
             Object.keys( graph ).forEach( visit );
@@ -269,30 +354,30 @@
         buildMediaBlock: function( thePath ) {
 
             var content
-				, mediaBlock
+                , mediaBlock
                 , importFile
                 , mediaImports = []
                 , fileData = this.files.data[ thePath ]
                 ;
             
             // Make sure there are `@import` statements
-            if ( !fileData.imports ) return log.minor( '  [skip] ' + thePath );
+            if ( fileData.skip || !fileData.imports ) return log.minor( '  [none] ' + thePath );
             
-			content = fsh.readFile( thePath );
-			
-			for ( var file in fileData.imports ) {
+            content = fsh.readFile( thePath );
+            
+            for ( var file in fileData.imports ) {
 
                 importFile = fileData.imports[ file ];
                 
                 if ( importFile.condition )  mediaImports.push( file );
             }
-			
-			// Make sure the `@import` statements have media conditions
-			if ( !mediaImports.length ) return log.minor( '  [skip] ' + thePath );
-			
-			mediaImports.forEach( function( file ) {
-			    
-			    importFile = fileData.imports[ file ];
+            
+            // Make sure the `@import` statements have media conditions
+            if ( !mediaImports.length ) return log.minor( '  [none] ' + thePath );
+            
+            mediaImports.forEach( function( file ) {
+                
+                importFile = fileData.imports[ file ];
                 
                 // Create the `@media` block
                 mediaBlock = [
@@ -303,7 +388,7 @@
                 
                 // Update the content
                 content = content.replace( importFile.statement, mediaBlock );
-			}, this );
+            }, this );
             
             // Write the new content to the file
             fsh.writeFile( thePath, content );
@@ -315,38 +400,37 @@
          * 
          * @method concatenate
          */
-        concatenate: function( thePath, fileData ) {
+        concatenate: function( thePath ) {
             
             var content
-				, pattern
-				, importContent
-				, opts = this.options
+                , pattern
+                , importContent
+                , opts = this.options
                 , fileData = this.files.data[ thePath ]
                 ;
                         
             // Skip if no `@import` statements and no optimization needed
-            if ( !opts.optimize && !fileData.imports ) return log.minor( '  [skip] ' + thePath );
+            if ( fileData.skip || ( !opts.optimize && !fileData.imports ) ) return log.minor( '  [none] ' + thePath );
             
-			content = fsh.readFile( thePath );
-			
-			// Make sure there are `@import` statements
-			if ( fileData.imports ) {
-			    
-			    for ( var importPath in fileData.imports ) {
+            content = fsh.readFile( thePath );
+            
+            // Make sure there are `@import` statements
+            if ( fileData.imports ) {
+                
+                for ( var importPath in fileData.imports ) {
 
-                    // pattern = fileData.imports[ importPath ].rule;
                     pattern = rImport;
-    				importContent = fsh.readFile( importPath );
-    				
-    				// Fix asset paths
+                    importContent = fsh.readFile( importPath );
+                    
+                    // Fix asset paths
                     importContent = this.resolvePaths( thePath, importPath, importContent );
                     
                     // Update the content
                     content = content.replace( pattern, importContent );
-    			}
-			}
-			
-			if ( this.options.optimize ) content = cssmin( content );
+                }
+            }
+            
+            if ( this.options.optimize ) content = cssmin( content );
             
             // Write the new content to the file
             fsh.writeFile( thePath, content );
@@ -370,7 +454,7 @@
                 ;
             
             content = content.replace( rAssetURLs, function ( match, assetPath ) {
-                
+
                 absAssetPath = path.resolve( childPath, assetPath );
                 relAssetPath = path.relative( parentPath, absAssetPath );
                 
@@ -381,7 +465,7 @@
         }
     }
     
-    var api = new CSSCat; 
+    var api = new CSSCat(); 
     
     module.exports = {
         init: api.init.bind( api ),

@@ -23,11 +23,11 @@
     if ( fsh.exists( dir ) ) fsh.rm( dir );
     
     // Copy the target directory to the destination directory
-    console.log( '\nCopying files to the destination directory at "' + dir + '"' );
+    console.log( '\nCopying files to the destination directory at "' + dir + '"\n' );
     fsh.copyDir( original, dir );
     
     // Now that the we have fresh copy, let's get busy on it
-    csscat.init({
+    var csscatObj = csscat.init({
         // debug: true,
         // optimize: false,
         dir: dir
