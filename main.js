@@ -235,7 +235,7 @@
                     
                         curMatch = theMatch.match( rImport );
                         origPathImport = curMatch[1].replace( rQuotes, '' );
-                        absPathImport = path.resolve( path.dirname( absPath ), origPathImport );
+                        absPathImport = path.resolve( path.dirname( absPath ), origPathImport ).replace( /\\/g, '/' );
                         firstSlashIndex = origPathImport.indexOf( '/' );
                         colonIndex = origPathImport.indexOf( ':' );
                     
@@ -245,7 +245,7 @@
                             curFile.skip = true;
                             absPathImport = origPathImport;
                         }
-                    
+                        
                         graph[ absPath ].push( absPathImport );
                         curFile.imports[ absPathImport ] = {
                             statement: curMatch[0],
