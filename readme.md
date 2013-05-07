@@ -85,7 +85,7 @@ A new directory will be created in the smoke-test directory named "sample-build"
 
 ## Roadmap ##
 
-- More robust automated testing.
+- More robust automated testing (in progress).
 - Compatibility with other tools ([RequireJS][requirejs], [Grunt][grunt]) (in progress).
 - Converting images to `data-uri` via some sort of flag in the property.
 - [Source map][source-maps-html5rocks] generation ([more explanation][source-maps-snugug]). Mozilla [has a nodejs package][moz-source-map].
