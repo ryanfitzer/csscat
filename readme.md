@@ -54,9 +54,11 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 
 - `optimize` {Boolean} Minify via CSSMin.
 
-- `exclude` {RegEx} Regex exclusion pattern used to filter the list of files. Defaults to `/^\.|\/\.|node_modules/`, which filters out anything that begins with "." or "node_modules". **NOTE**: If an excluded file is a dependency of a non-excluded file, the file will be parsed. This may change in the future.
+- `exclude` {RegEx} Regex exclusion pattern used to filter the list of files to process. Defaults to `/^\.|\/\.|node_modules/`, which filters out anything that begins with "." or "node_modules". **NOTE**: If an excluded file is a dependency of a non-excluded file, the file will be parsed. See the `ignore` option for an alternative way to skip files.
 
-- `log` {Boolean} Enable logging. Defaults to `false`.
+- `ignore` {Array} Array of strings to match against when parsing the `@import` statements of a file. If a match is found, the file and all of the ancestor files in its dependency chain will be skipped.
+
+- `log` {Boolean} Disable logging. Defaults to `true`.
 
 - `debug` {Boolean} Enable debug logging. Defaults to `false`.
 

@@ -29,8 +29,10 @@
     // Now that the we have fresh copy, let's get busy on it
     var csscatObj = csscat.init({
         // debug: true,
-        // optimize: false,
+        // ignore: [ 'aa/aa.css' ],
+        optimize: false,
         dir: dir
     });
     
+    // console.log(csscatObj.files.data);
 }();

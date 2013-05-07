@@ -7,7 +7,7 @@ var fs = require( 'fs' )
     , csscat = require( '../main' )
     ;
 
-var RegEx = {
+var regEx = {
     
     dir: path.resolve( './tests/regex' ),
     
@@ -16,8 +16,8 @@ var RegEx = {
         var match
             , result = []
             , regex = csscat.test.rAssetURLs
-            , content = fs.readFileSync( RegEx.dir + '/asset-urls.css', 'utf8' )
-            , expected = require( RegEx.dir + '/asset-urls-expected.js' )
+            , content = fs.readFileSync( regEx.dir + '/asset-urls.css', 'utf8' )
+            , expected = require( regEx.dir + '/asset-urls-expected.js' )
             ;
         
         // Push the first capture for each match onto the result array
@@ -30,8 +30,8 @@ var RegEx = {
         
         var match
             , regex = csscat.test.rImportGlobal
-            , content = fs.readFileSync( RegEx.dir + '/import-parts.css', 'utf8' )
-            , expected = require( RegEx.dir + '/import-parts-expected.js' )
+            , content = fs.readFileSync( regEx.dir + '/import-parts.css', 'utf8' )
+            , expected = require( regEx.dir + '/import-parts-expected.js' )
             ;
         
         var result = {
@@ -52,6 +52,6 @@ var RegEx = {
 }
 
 describe( '[RegEx]', function() {
-    it( '`rAssetURLs` should capture the asset paths', RegEx.rAssetURLs );
-    it( '`rImportGlobal` should capture the paths and media conditions', RegEx.rImportGlobal );
+    it( '`rAssetURLs` should capture the asset paths', regEx.rAssetURLs );
+    it( '`rImportGlobal` should capture the paths and media conditions', regEx.rImportGlobal );
 });

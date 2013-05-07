@@ -47,6 +47,7 @@
             dir: '',
             files: [],
             exclude: /^\.|\/\.|node_modules/,
+            ignore: [],
             optimize: true,
             log: true,
             debug: false
@@ -174,6 +175,7 @@
          *      // data structure
          *      {
          *          'absolute/path/to/parent/file.css': {
+         *              skip: false,
          *              imports: {
          *                  'absolute/path/to/dependency/file.css': {
          *                      statement: '@import url( \'dependency/file.css\' ) screen and ( min-width: 100px );',
@@ -206,6 +208,7 @@
                 , matches
                 , curFile
                 , curMatch
+                , isIgnored
                 , colonIndex
                 , fileContents
                 , absPathImport
@@ -224,7 +227,7 @@
                 
                 graph[ absPath ] = [];
                 curFile = data[ absPath ] = {};
-                data[ absPath ].skip = false;
+                curFile.skip = false;
                 matches = fileContents.match( rImportGlobal );
                 
                 if ( matches ) {
@@ -238,9 +241,10 @@
                         absPathImport = path.resolve( path.dirname( absPath ), origPathImport ).replace( /\\/g, '/' );
                         firstSlashIndex = origPathImport.indexOf( '/' );
                         colonIndex = origPathImport.indexOf( ':' );
-                    
+                        isIgnored = this.options.ignore.indexOf( origPathImport ) !== -1 ? true : false;
+                        
                         // Skip files that start with '/' or have a protocol.
-                        if ( origPathImport.charAt( 0 ) === '/' || ( colonIndex !== -1 && colonIndex < firstSlashIndex ) ) {
+                        if ( isIgnored || origPathImport.charAt( 0 ) === '/' || ( colonIndex !== -1 && colonIndex < firstSlashIndex ) ) {
                         
                             curFile.skip = true;
                             absPathImport = origPathImport;
@@ -254,11 +258,11 @@
                             condition: curMatch[2]
                         }
                     
-                    });
+                    }, this );
                 }
                 
                 if ( curFile.skip ) {
-                    log.warn( '  [warning] The file "' + file + '" has dependencies that are unresolvable.' );
+                    log.warn( '  [warning] The file "' + file + '" has dependencies that are unresolvable or configured to be ignored.' );
                 }
                 else log.minor( '  [parsed] ' + absPath );
                 
@@ -310,7 +314,8 @@
             var visit = function( name, ancestors ) {
                 
                 var toSkipFile = false
-                    , imports = self.files.data[ name ].imports
+                    , parentFile = self.files.data[ name ]
+                    , imports = parentFile.imports
                     ;
                 
                 if ( visited[ name ] ) return;
@@ -321,11 +326,11 @@
                 visited[ name ] = true;
                 
                 // Skip the file if it can't be processed.
-                if ( self.files.data[ name ].skip ) return;
+                if ( parentFile.skip ) return;
 
                 toSkipFile = checkSkippedDeps( imports );
                 
-                if ( toSkipFile ) return;
+                if ( toSkipFile ) return parentFile.skip = true;
                 
                 graph[ name ].forEach( function( dep ) {
                     
