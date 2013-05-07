@@ -1,4 +1,4 @@
-# CSSCat #
+# CSSCat [![Build Status](https://travis-ci.org/ryanfitzer/csscat.png?branch=master)](https://travis-ci.org/ryanfitzer/csscat) #
 
 CSSCat is a [Node.js][nodejs] tool for managing CSS dependencies. Its goal is to facilitate CSS modularity through the liberal use of `@import` statements ([including ones with media conditions][mqs]) during development that can then be built into single files for production.
 
