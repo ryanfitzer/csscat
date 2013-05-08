@@ -34,5 +34,5 @@
         dir: dir
     });
     
-    console.log( JSON.stringify( csscatObj, null, '\t' ) );
+    // console.log( JSON.stringify( csscatObj, null, '\t' ) );
 }();
