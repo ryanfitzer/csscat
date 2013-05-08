@@ -63,11 +63,47 @@
             */
         }
         
+        
+        /*
+            files = {
+                data: {
+                    'absolute/path/to/parent/file.css': {
+                        skip: false,
+                        imports: {
+                            'absolute/path/to/parent/file-1.css': {
+                                statement: '@import url( \'dependency/file.css\' ) screen and ( min-width: 100px );',
+                                path: 'dependency/file.css',
+                                rule: '@import url( \'dependency/file.css\' );',
+                                condition: 'screen and ( min-width: 100px )'
+                            }
+                        }
+                    }
+                },
+                graph: {
+                    'absolute/path/to/parent/file-1.css': [ 
+                        'absolute/path/to/dependency/file-4.css',
+                        'absolute/path/to/dependency/file-3.css'
+                    ]
+                },
+                order: [
+                    'absolute/path/to/parent/file-1.css',
+                    'absolute/path/to/parent/file-2.css',
+                    'absolute/path/to/parent/file-3.css',
+                    'absolute/path/to/parent/file-4.css',
+                ]
+            }
+        */
         this.files = {
-            data:{},
-            graph:{},
-            order:{}
+            data: {},
+            graph: {},
+            order: []
         }
+        
+        /*
+            TODO: Potential return values
+                    - A `test` option for accessing private members.
+                    - A `config` method for substituting internal methods (RequireJS needs Rhino support).
+        */
     }
     
     CSSCat.prototype = {
@@ -111,8 +147,9 @@
             this.process();
             
             return {
-                files: this.files
-            }
+                data: this.files.data,
+                order: this.files.order
+            };
         },
         
         /**
