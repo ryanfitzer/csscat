@@ -20,7 +20,7 @@ var skip = {
             dir: skip.dir + '/ignore',
             optimize: false,
             ignore: [ 'c.css' ]
-        }).files.data;
+        }).data;
         
         
         for ( var name in fileObj ) {
@@ -41,7 +41,7 @@ var skip = {
             log: false,
             dir: skip.dir + '/nonRelativePaths',
             optimize: false
-        }).files.data;
+        }).data;
         
         
         for ( var name in fileObj ) {
