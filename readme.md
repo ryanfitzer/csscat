@@ -39,7 +39,10 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 
 - `dir` {String} The base path (relative to the file from which `csscat.init` is invoked) used to search for all files with a "css" extension.
 
-- `files` {Array} (Optional) An array of files to use instead of searching the `dir` path. If the `dir` path is defined, the paths must be relative to the `dir` path.
+- `files` {Array} (Optional) An array of files to use instead of searching the `dir` path.   
+
+    - If the paths are not absolute, they must be relative to the file from which `csscat.init` is invoked.
+    - If the `dir` path is defined, the paths cannot be absolute, they must be relative to the `dir` path.
 
 - `optimize` {Boolean} Minify via CSSMin.
 

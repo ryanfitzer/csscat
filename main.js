@@ -119,6 +119,34 @@
          */
         init: function( config ) {
             
+            // Was a config object provided?
+            if ( config ) {
+                this.config( config );
+            }
+            
+            // Was the `options` method already called?
+            else if ( !config && ( !this.dir || !thisfiles ) ) {
+                this.config( config );
+            }
+            
+            this.createFileData();
+            this.process();
+            
+            return {
+                data: this.files.data,
+                order: this.files.order
+            };
+        },
+        
+        /**
+         * Description needed
+         * 
+         * @method createFileData
+         */
+        config: function( config ) {
+            
+            if ( !config ) return this.options;
+            
             // Extend options
             for ( var key in this.options ) {
                if ( key in config ) this.options[ key ] = config[ key ];
@@ -141,15 +169,6 @@
             log.info( 'CSSCat options extended.' );
             
             log.debug( this.options, 'Options' );
-            
-            this.createFileData();
-            
-            this.process();
-            
-            return {
-                data: this.files.data,
-                order: this.files.order
-            };
         },
         
         /**
@@ -200,10 +219,14 @@
             log.info( 'Handling imports with media conditions:' );
             files.forEach( this.buildMediaBlock, this );
             
-            log.info( 'Concatenating files (' + withOptimization + ' optimization):' );
+            log.info( 'Concatenating files with their imports (' + withOptimization + ' optimization):' );
             files.forEach( this.concatenate, this );
-
-            log.success( 'Finished!' );
+            
+            log.success( '\
+                  {\n\
+                 (*)\n\
+                 J J\n\
+CSSCat did her business without errors!');
         },
         
         /**
@@ -257,7 +280,7 @@
             
             list.forEach( function( file ) {
 
-                absPath = this.options.dir ? path.join( this.options.dir, file ) : file;
+                absPath = this.options.dir ? path.join( this.options.dir, file ) : path.resolve( file );
                 fileContents = fsh.readFile( absPath );
                 
                 if ( !fileContents ) error( 'File does not exist: "' + absPath + '"' );
@@ -380,7 +403,7 @@
                 });
                 
                 sorted.push( name );
-                log.minor( '  [' + ++count + '] ' + name );
+                log.major( '  [' + ++count + '] ' + name );
             }
 
             Object.keys( graph ).forEach( visit );
@@ -507,10 +530,16 @@
         }
     }
     
-    var api = new CSSCat(); 
+    var api = new CSSCat();
     
     module.exports = {
-        init: api.init.bind( api ),
+        // init: api.init.bind( api ),
+        init: function ( config ) {
+            
+            var api = new CSSCat();
+            
+            return api.init( config )
+        },
         test: {
             rAssetURLs: rAssetURLs,
             rImportGlobal: rImportGlobal
