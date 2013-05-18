@@ -1,0 +1,6 @@
+/* a/aa/aa.css */
+
+#a-aa-aa > a {
+    color:rgb(0, 121, 0);
+    background-image: url('../../../images/checkmark.png');
+}

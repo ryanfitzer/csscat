@@ -1,9 +1,6 @@
 'use strict';
 
-var fs = require( 'fs' )
-    , path = require( 'path' )
-    , util = require( 'util' )
-    , assert = require( 'assert' )
+var path = require( 'path' )
     , csscat = require( '../main' )
     ;
 
