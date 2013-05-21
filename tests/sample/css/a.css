@@ -1,7 +1,6 @@
 /* a.css */
 
 @import 'global.css';
-
 @import url( 'a/a.css' ) screen and ( min-width: 200px ), print and ( color );
 
 #a > a {

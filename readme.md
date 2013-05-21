@@ -2,7 +2,11 @@
 
 CSSCat is a [Node.js][nodejs] tool for managing CSS dependencies. Its goal is to facilitate CSS modularity through the liberal use of `@import` statements ([including ones with media conditions][mqs]) during development that can then be concatenated into single files for production.
 
+Instead of creating long manifests of files that need to be concatenated together by a build tool, CSSCat does this for you by tracing the dependency tree by reading a file's `@import` statements. This enables you to leverage `@import` statements during development and concatenated/minified CSS in production. And without having to rewrite your `<link>` tags to point to "some-file.min.css".
+
 **Why not just use one of the various CSS preprocessors available these days**, you ask? Good question. I wrote CSSCat for those who don't use a preprocessor and/or for when a project's limitations exclude a preprocessor as an option. Since CSSCat operates on valid CSS, switching to another tool is simple.
+
+**Note**: CSSCat does not copy the project files into a new directory before processing. This [gist][copy-files] shows how to use CSSCat's fs-helper module in your build.js file to easily generate a copy of the your project.
 
 **CSSCat IS IN THE ALPHA STAGES**. So please use with caution. Due to its file transformation functionality, it should only be used in a manner that does not jeopardize your valuable work. More testing and real-world use is needed to ensure a solid tool that functions as advertised.
 
@@ -35,6 +39,57 @@ With that said, testers are needed (and much appreciated)! Please log any issues
     $ npm install csscat
 
 
+## Usage ##
+
+The only option needed to get started is the `dir` option. The path you provide should be relative to the file from which `csscat.init( options )` is invoked. The following configuration will process all files located in "my/css" and its subdirectories.
+
+```js
+    var csscat = require( 'csscat' );
+    
+    csscat.init({
+        dir: 'my/css'
+    });
+```
+
+You can also supply only a `files` option. Just like the `dir` option, the path should be relative to the file from which `csscat.init( options )` is invoked. The following configuration will process "a.css", "b.css", "c.css".
+
+Please be aware that since CSSCat follows the dependency tree using the file's `@import` statements, any `@import` statements found pointing to files not listed in the `files` array will cause those files to also be processed.
+
+```js
+    var csscat = require( 'csscat' );
+    
+    csscat.init({
+        files: [
+            'my/css/a.css',
+            'my/css/b.css',
+            'my/css/c.css'
+        ]
+    });
+```
+
+You can use the `ignore` option to insure that certain files are skipped. The strings found in the `ignore` array are matched against the values in `@import` statements. If a file's `@import` statement contains a match to one of these strings, that file and all of its ancestors (the files that import it) are skipped. This is needed to avoid creating invalid CSS.
+
+```js
+    var csscat = require( 'csscat' );
+    
+    csscat.init({
+        dir: 'my/css',
+        ignore: [ 'd.css' ]
+    });
+```
+
+The `exclude` option enables you to exclude certain files and directories via regular expression matching. Be aware that, like the earlier example,  any `@import` statements found pointing to files meant for exclusion will still be processed.
+
+```js
+        var csscat = require( 'csscat' );
+    
+        csscat.init({
+            dir: 'my/css',
+            exclude: /pattern/
+        });
+```
+
+
 ## Options ##
 
 - `dir` {String} The base path (relative to the file from which `csscat.init` is invoked) used to search for all files with a "css" extension.
@@ -55,43 +110,9 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 - `debug` {Boolean} Enable debug logging. Defaults to `false`.
 
 
-## Usage ##
+## The Files Object ##
 
-**Note**: CSSCat does not copy the files into a new directory before processing. This [gist][copy-files] shows how to use CSSCat's fs-helper in a build.js file to easily generate a copy of the original directory.
-
-    var csscat = require( 'csscat' );
-    
-    var files = csscat.init({
-        dir: 'path/to/css' // relative to the file from which `csscat.init` is invoked
-    });
-    
-
-The call to `init` returns a files object. Here's an example:
-
-    {
-        data: {
-            'absolute/path/to/file-1.css': {
-                skip: false,
-                imports: {
-                    'absolute/path/to/file-4.css': {
-                        statement: '@import url( \'dependency/file-4.css\' ) screen and ( min-width: 100px );',
-                        path: 'dependency/file.css',
-                        rule: '@import url( \'dependency/file-4.css\' );',
-                        condition: 'screen and ( min-width: 100px )'
-                    },
-                    {...}
-                }
-            },
-            {...},
-            {...}
-        },
-        order: [
-            'absolute/path/to/file-1.css',
-            'absolute/path/to/file-2.css',
-            'absolute/path/to/file-3.css',
-            'absolute/path/to/file-4.css',
-        ]
-    }
+The call to `csscat.init( options )` returns a files object containing the `data` and `order` members.
 
 ### The `data` Object ###
 
@@ -111,8 +132,6 @@ The `order` array is an ordered list of files (absolute paths) that have been pr
 
 ## Testing ##
 
-I'm still in the process of writing tests. If you have a particular test you feel should added, please open an issue.
-
 ### OSX ###
 
     $ cd path/to/where/you/installed/csscat
@@ -125,16 +144,9 @@ Since Windows does not recognize executables the same as OSX you need to run the
     $ cd path\to\where\you\installed\csscat
     $ node node_modules/.bin/mocha --reporter list --require should tests
 
-### Running the Smoke Test ###
+#### Viewing the Results in the Browser ####
 
-I've also created a simple smoke-test to be viewed in the browser, which allows for easy visual debugging. If you find a particular scenario in your css organization that fails, open an issue and I'll add it to the smoke-test.
-
-    $ cd path/to/where/you/installed/csscat
-    $ node smoke-test/test.sample
-
-#### Viewing the Results ####
-
-A new directory will be created in the smoke-test directory named "sample-build". Open the enclosed "index.html" in a browser.
+Each test in "tests/options/actual" be viewed in the browser, which allows for easy visual debugging. Simply drag the test's "index.html" file to your browser. If you find a particular scenario in your css organization that fails, open an issue.
 
 #### Reading the Results ####
 
@@ -145,7 +157,7 @@ A new directory will be created in the smoke-test directory named "sample-build"
 
 ## Roadmap ##
 
-- Compatibility with other tools ([RequireJS][requirejs], [Grunt][grunt]) (in progress).
+- Compatibility with other tools ([RequireJS][requirejs], [Grunt][grunt]) (almost done with the GruntJS plugin).
 - Converting images to `data-uri` via some sort of flag in the property.
 - [Source map][source-maps-html5rocks] generation ([more explanation][source-maps-snugug]). Mozilla [has a nodejs package][moz-source-map].
 

@@ -49,7 +49,7 @@ var regEx = {
     }
 }
 
-describe( '[RegEx]', function() {
+describe( '[RegEx Match]', function() {
     it( '`rAssetURLs` should capture the asset paths', regEx.rAssetURLs );
     it( '`rImportGlobal` should capture the paths and media conditions', regEx.rImportGlobal );
 });

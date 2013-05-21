@@ -27,11 +27,11 @@
     var rImportGlobal = new RegExp( rImport.toString().slice( 1, rImport.toString().length - 1 ), [ 'g' ] );
     
     // Logs error and exits
-    function error( msg, heading ) {
+    function error( msg ) {
         
-        if ( !heading ) msg = '[Error] ' + msg;
-        
-        log.error( msg, heading );
+        msg = '\x1B[31m' + '[Error] ' + msg + '\x1B[39m';
+
+        console.log( msg );
         process.exit(1);
     }
     
@@ -119,16 +119,7 @@
          */
         init: function( config ) {
             
-            // Was a config object provided?
-            if ( config ) {
-                this.config( config );
-            }
-            
-            // Was the `options` method already called?
-            else if ( !config && ( !this.dir || !thisfiles ) ) {
-                this.config( config );
-            }
-            
+            this.config( config );
             this.createFileData();
             this.process();
             
@@ -145,8 +136,6 @@
          */
         config: function( config ) {
             
-            if ( !config ) return this.options;
-            
             // Extend options
             for ( var key in this.options ) {
                if ( key in config ) this.options[ key ] = config[ key ];
@@ -157,13 +146,15 @@
                 debug: this.options.debug,
                 level: this.options.log
             });
-            
-            if ( !this.options.dir && !this.options.files ) error( 'No directory defined.' );
+
+            if ( !this.options.dir && !this.options.files.length ) {
+                error( 'No `dir` or `files` option defined. CSScat requires at least one of the options be defined.' );
+            }
             
             if ( this.options.dir ) {
                 
                 this.options.dir = path.resolve( this.options.dir );
-                if ( !fsh.exists( this.options.dir ) ) error( 'Target directory could not be found: ' + this.options.dir );
+                if ( !fsh.exists( this.options.dir ) ) error( 'Directory could not be found at: ' + this.options.dir );
             }
             
             log.info( 'CSSCat options extended.' );
@@ -282,13 +273,13 @@ CSSCat did her business without errors!');
 
                 absPath = this.options.dir ? path.join( this.options.dir, file ) : path.resolve( file );
                 fileContents = fsh.readFile( absPath );
-                
+
                 if ( !fileContents ) error( 'File does not exist: "' + absPath + '"' );
                 
                 graph[ absPath ] = [];
                 curFile = data[ absPath ] = {};
                 curFile.skip = false;
-                matches = fileContents.match( rImportGlobal );
+                var matches = fileContents.match( rImportGlobal );
                 
                 if ( matches ) {
                     
@@ -533,7 +524,6 @@ CSSCat did her business without errors!');
     var api = new CSSCat();
     
     module.exports = {
-        // init: api.init.bind( api ),
         init: function ( config ) {
             
             var api = new CSSCat();
