@@ -6,7 +6,7 @@ Instead of creating long manifests of files that need to be concatenated togethe
 
 **Why not just use one of the various CSS preprocessors available these days**, you ask? Good question. I wrote CSSCat for those who don't use a preprocessor and/or for when a project's limitations exclude a preprocessor as an option. Since CSSCat operates on valid CSS, switching to another tool is simple.
 
-**Note**: CSSCat does not copy the project files into a new directory before processing. This [gist][copy-files] shows how to use CSSCat's fs-helper module in your build.js file to easily generate a copy of the your project.
+**Note**: CSSCat does not copy the project files into a new directory before processing. This [gist][copy-files] shows how to use CSSCat's `fsh` module in your build.js file to easily generate a copy of the your project.
 
 **CSSCat IS IN THE ALPHA STAGES**. So please use with caution. Due to its file transformation functionality, it should only be used in a manner that does not jeopardize your valuable work. More testing and real-world use is needed to ensure a solid tool that functions as advertised.
 

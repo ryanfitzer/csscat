@@ -11,7 +11,7 @@
     
     // Local deps
     var log = require( './lib/logger' )
-        , fsh = require( './lib/fs-helper' )
+        , fsh = require( './lib/fsh' )
         ;
 
     // Matches single and double quotes
@@ -272,7 +272,7 @@ CSSCat did her business without errors!');
             list.forEach( function( file ) {
 
                 absPath = this.options.dir ? path.join( this.options.dir, file ) : path.resolve( file );
-                fileContents = fsh.readFile( absPath );
+                fileContents = fsh.read( absPath );
 
                 if ( !fileContents ) error( 'File does not exist: "' + absPath + '"' );
                 
@@ -419,7 +419,7 @@ CSSCat did her business without errors!');
             // Make sure there are `@import` statements
             if ( fileData.skip || !fileData.imports ) return log.minor( '  [none] ' + thePath );
             
-            content = fsh.readFile( thePath );
+            content = fsh.read( thePath );
             
             for ( var file in fileData.imports ) {
 
@@ -447,7 +447,7 @@ CSSCat did her business without errors!');
             }, this );
             
             // Write the new content to the file
-            fsh.writeFile( thePath, content );
+            fsh.write( thePath, content );
             log.major( '  [meow] ' + thePath );
         },
                 
@@ -468,7 +468,7 @@ CSSCat did her business without errors!');
             // Skip if no `@import` statements and no optimization needed
             if ( fileData.skip || ( !opts.optimize && !fileData.imports ) ) return log.minor( '  [none] ' + thePath );
             
-            content = fsh.readFile( thePath );
+            content = fsh.read( thePath );
             
             // Make sure there are `@import` statements
             if ( fileData.imports ) {
@@ -476,7 +476,7 @@ CSSCat did her business without errors!');
                 for ( var importPath in fileData.imports ) {
 
                     pattern = rImport;
-                    importContent = fsh.readFile( importPath );
+                    importContent = fsh.read( importPath );
                     
                     // Fix asset paths
                     importContent = this.resolvePaths( thePath, importPath, importContent );
@@ -489,7 +489,7 @@ CSSCat did her business without errors!');
             if ( this.options.optimize ) content = cssmin( content );
             
             // Write the new content to the file
-            fsh.writeFile( thePath, content );
+            fsh.write( thePath, content );
             log.major( '  [meow] ' + thePath );    
         },
         

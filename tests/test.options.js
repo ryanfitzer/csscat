@@ -3,7 +3,7 @@
 var fs = require( 'fs' )
     , path = require( 'path' )
     , csscat = require( '../main' )
-    , fsh = require( '../lib/fs-helper' )
+    , fsh = require( '../lib/fsh' )
     ;
     
 var testPath = path.resolve( './tests/options' )
@@ -107,8 +107,8 @@ function test( name ) {
     
     files.forEach( function( filePath ) {
 
-        var control = fsh.readFile( path.join( controlPath, filePath ) );
-        var actual = fsh.readFile( path.join( actualPath, filePath ) );
+        var control = fsh.read( path.join( controlPath, filePath ) );
+        var actual = fsh.read( path.join( actualPath, filePath ) );
         
         if ( control !== actual ) {
             console.log( 'filePath:', filePath );
