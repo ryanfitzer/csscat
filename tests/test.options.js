@@ -14,43 +14,59 @@ var testPath = path.resolve( './tests/options' )
 
 var options = {
     
-    'dir': {
-        dir: path.join( actualPath, 'dir' )
+    'dir': function() {
+        return {
+            dir: path.join( actualPath, 'dir' )
+        }
     },
     
-    'files': {
-        files: fsh.glob( path.join( actualPath, 'files/**/*.css' ) )
+    'files': function() {
+        return {
+            files: fsh.glob( path.join( actualPath, 'files/**/*.css' ) )
+        }
     },
     
-    'dir-files': {
-        dir: path.join( actualPath, 'dir-files' ),
-        files: fsh.glob( '**/*.css', { dir: path.join( actualPath, 'dir-files' ) } )
+    'dir-files': function() {
+        return {
+            dir: path.join( actualPath, 'dir-files' ),
+            files: fsh.glob( '**/*.css', { dir: path.join( actualPath, 'dir-files' ) } )
+        }
     },
     
-    'dir-ignore': {
-        ignore: [ 'a/a.css' ],
-        dir: path.join( actualPath, 'dir-ignore' )
+    'dir-ignore': function() {
+        return {
+            ignore: [ 'a/a.css' ],
+            dir: path.join( actualPath, 'dir-ignore' )
+        }
     },
     
-    'files-ignore': {
-        ignore: [ 'a/a.css' ],
-        files: fsh.glob( path.join( actualPath, 'files-ignore/**/*.css' ) )
+    'files-ignore': function() {
+        return {
+            ignore: [ 'a/a.css' ],
+            files: fsh.glob( path.join( actualPath, 'files-ignore/**/*.css' ) )
+        }
     },
     
-    'dir-exclude': {
-        exclude: /^\.|\/\.|c\.css|node_modules/,
-        dir: path.join( actualPath, 'dir-exclude' )
+    'dir-exclude': function() {
+        return {
+            exclude: /^\.|\/\.|c\.css|node_modules/,
+            dir: path.join( actualPath, 'dir-exclude' )
+        }
     },
     
-    'files-exclude': {
-        exclude: /^\.|\/\.|c\.css|node_modules/,
-        files: fsh.glob( path.join( actualPath, 'files-exclude/**/*.css' ) )
+    'files-exclude': function() {
+        return {
+            exclude: /^\.|\/\.|c\.css|node_modules/,
+            files: fsh.glob( path.join( actualPath, 'files-exclude/**/*.css' ) )
+        }
     },
     
-    'dir-files-ignore': {
-        ignore: [ 'a/a.css' ],
-        dir: path.join( actualPath, 'dir-files-ignore' ),
-        files: fsh.glob( '**/*.css', { dir: path.join( actualPath, 'dir-files-ignore' ) } )
+    'dir-files-ignore': function() {
+        return {
+            ignore: [ 'a/a.css' ],
+            dir: path.join( actualPath, 'dir-files-ignore' ),
+            files: fsh.glob( '**/*.css', { dir: path.join( actualPath, 'dir-files-ignore' ) } )
+        }
     }
 }
 
@@ -59,7 +75,7 @@ function copy() {
     Object.keys( options ).forEach( function( name ) {
         
         var newDir = path.join( actualPath, name );        
-            
+
         // Delete destination directory
         if ( fsh.exists( newDir ) ) fsh.rm( newDir );
          
@@ -73,7 +89,7 @@ function process() {
     
     Object.keys( options ).forEach( function( name ) {
         
-        var ops = options[ name ];
+        var ops = options[ name ]();
         
         ops.log = false;
         ops.debug = false;
@@ -104,6 +120,7 @@ function test( name ) {
 
 copy();
 process();
+
 describe( '[Options]', function() {
     
     Object.keys( options ).forEach( function( name ) {

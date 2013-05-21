@@ -146,7 +146,7 @@
                 debug: this.options.debug,
                 level: this.options.log
             });
-
+            
             if ( !this.options.dir && !this.options.files.length ) {
                 error( 'No `dir` or `files` option defined. CSScat requires at least one of the options be defined.' );
             }
