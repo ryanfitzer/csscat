@@ -44,11 +44,11 @@ With that said, testers are needed (and much appreciated)! Please log any issues
 The only option needed to get started is the `dir` option. The path you provide should be relative to the file from which `csscat.init( options )` is invoked. The following configuration will process all files located in "my/css" and its subdirectories.
 
 ```js
-    var csscat = require( 'csscat' );
-    
-    csscat.init({
-        dir: 'my/css'
-    });
+var csscat = require( 'csscat' );
+
+csscat.init({
+    dir: 'my/css'
+});
 ```
 
 You can also supply only a `files` option. Just like the `dir` option, the path should be relative to the file from which `csscat.init( options )` is invoked. The following configuration will process "a.css", "b.css", "c.css".
@@ -56,37 +56,37 @@ You can also supply only a `files` option. Just like the `dir` option, the path 
 Please be aware that since CSSCat follows the dependency tree using the file's `@import` statements, any `@import` statements found pointing to files not listed in the `files` array will cause those files to also be processed.
 
 ```js
-    var csscat = require( 'csscat' );
-    
-    csscat.init({
-        files: [
-            'my/css/a.css',
-            'my/css/b.css',
-            'my/css/c.css'
-        ]
-    });
+var csscat = require( 'csscat' );
+
+csscat.init({
+    files: [
+        'my/css/a.css',
+        'my/css/b.css',
+        'my/css/c.css'
+    ]
+});
 ```
 
 You can use the `ignore` option to insure that certain files are skipped. The strings found in the `ignore` array are matched against the values in `@import` statements. If a file's `@import` statement contains a match to one of these strings, that file and all of its ancestors (the files that import it) are skipped. This is needed to avoid creating invalid CSS.
 
 ```js
-    var csscat = require( 'csscat' );
-    
-    csscat.init({
-        dir: 'my/css',
-        ignore: [ 'd.css' ]
-    });
+var csscat = require( 'csscat' );
+
+csscat.init({
+    dir: 'my/css',
+    ignore: [ 'd.css' ]
+});
 ```
 
 The `exclude` option enables you to exclude certain files and directories via regular expression matching. Be aware that, like the earlier example,  any `@import` statements found pointing to files meant for exclusion will still be processed.
 
 ```js
-        var csscat = require( 'csscat' );
-    
-        csscat.init({
-            dir: 'my/css',
-            exclude: /pattern/
-        });
+var csscat = require( 'csscat' );
+
+csscat.init({
+    dir: 'my/css',
+    exclude: /pattern/
+});
 ```
 
 
@@ -97,7 +97,7 @@ The `exclude` option enables you to exclude certain files and directories via re
 - `files` {Array} (Optional) An array of files to use instead of searching the `dir` path.   
 
     - If the paths are not absolute, they must be relative to the file from which `csscat.init` is invoked.
-    - If the `dir` path is defined, the paths cannot be absolute, they must be relative to the `dir` path.
+    - If the `dir` path is defined, the paths must be relative to the `dir` path.
 
 - `optimize` {Boolean} Minify via CSSMin.
 
